@@ -8,6 +8,7 @@ using methanum;
 namespace ClentExamle {
     class Program {
         static void Main(string[] args) {
+            args = new[] {"localhost:2255"};
             if ((!args.Any())) {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("ClentExample.exe coreAddress:port");
@@ -20,7 +21,7 @@ namespace ClentExamle {
                 userName = Console.ReadLine();   
             }
 
-            try {
+            //try {
                 var maingate = new Connector(args[0]);
 
                 maingate.SetHandler("message", MsgHandler);
@@ -35,10 +36,10 @@ namespace ClentExamle {
 
                     maingate.Fire(evt);
                 }
-            }
-            catch (Exception e) {
-                Console.WriteLine(e.Message);
-            }
+            //}
+            //catch (Exception e) {
+            //    Console.WriteLine(e.Message);
+            //}
         }
 
         static private void MsgHandler(Event evt) {
