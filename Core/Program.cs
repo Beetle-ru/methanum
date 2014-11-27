@@ -11,6 +11,7 @@ namespace Core {
             int port = 0;
 
             if ((!args.Any()) || (!int.TryParse(args[0], out port))) {
+                Console.WriteLine("Usage:");
                 Console.WriteLine("Core.exe port");
                 Environment.Exit(1);
             }
