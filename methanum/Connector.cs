@@ -19,6 +19,8 @@ namespace methanum {
         private Thread _fireThread;
         private List<Event> _eventQueue;
 
+        private Thread _keepAliveThread;
+
         public event CbHandler ReceiveEvent;
 
         protected virtual void OnReceive(Event evt) {
@@ -43,6 +45,10 @@ namespace methanum {
             _fireThread = new Thread(FireProc);
             _fireThread.IsBackground = true;
             _fireThread.Start();
+
+            _keepAliveThread = new Thread(KeepAliveProc);
+            _keepAliveThread.IsBackground = true;
+            _keepAliveThread.Start();
         }
 
         private void Conect() {
@@ -94,6 +100,23 @@ namespace methanum {
                         Conect();
                     }
                 } else Thread.Sleep(10);
+            }
+        }
+
+        private void KeepAliveProc() {
+            while (true) {
+                var evt = new Event("keepAlive");
+
+                try {
+                    _channel.Fire(evt);
+                } catch (Exception e) {
+                    if (!(e is CommunicationObjectFaultedException))
+                        throw e;
+
+                    Conect();
+                }
+
+                Thread.Sleep(1000);
             }
         }
 
