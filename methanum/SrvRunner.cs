@@ -10,22 +10,13 @@ namespace methanum {
         private ServiceHost SHost;
 
         public void Start(int port) {
-            try {
-                var uris = new[] {new Uri(string.Format("net.tcp://localhost:{0}", 2255))};
+            var uris = new[] { new Uri(string.Format("net.tcp://localhost:{0}", port)) };
 
-                SHost = new ServiceHost(typeof (Gate), uris);
-                SHost.Open();
+            SHost = new ServiceHost(typeof (Gate), uris);
+            SHost.Open();
 
-                foreach (Uri uri2 in SHost.BaseAddresses) {
-                    Console.WriteLine("\t{0}", uri2.ToString());
-                }
-                Console.WriteLine("The service is ready.");
-            }
-            catch (TimeoutException timeProblem) {
-                Console.WriteLine(timeProblem.Message);
-            }
-            catch (CommunicationException commProblem) {
-                Console.WriteLine(commProblem.Message);
+            foreach (Uri uri2 in SHost.BaseAddresses) {
+                Console.WriteLine("Start on: {0}", uri2.ToString());
             }
         }
 
