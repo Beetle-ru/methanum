@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -75,5 +77,57 @@ namespace methanum
             return sb.ToString();
         }
 
+        public void UAddData(string key, object ojb) {
+            Data[key] = ojb;
+        }
+
+        public object GetObj(string key) {
+            if (!Data.ContainsKey(key))
+                return null;
+            return Data[key];
+        }
+
+        public double GetDbl(string key) {
+            if (!Data.ContainsKey(key))
+                return Double.NaN;
+            return Convert.ToDouble(Data[key]);
+        }
+
+        public int GetInt(string key) {
+            if (!Data.ContainsKey(key))
+                return Int32.MinValue;
+            return Convert.ToInt32(Data[key]);
+        }
+
+        public string GetStr(string key) {
+            if (!Data.ContainsKey(key))
+                return null;
+            return Convert.ToString(Data[key]);
+        }
+
+
+        public void AddCustom(string key, object value) {
+            var serializer = new DataContractJsonSerializer(value.GetType());
+            var ms = new MemoryStream();
+
+            serializer.WriteObject(ms, value);
+            ms.Close();
+            var arr = ms.ToArray();
+            var str = Encoding.UTF8.GetString(arr);
+
+            Data.Add(key, str);
+        }
+
+        public object GetCustom(string key, Type valueType) {
+            if (!Data.ContainsKey(key))
+                return null;
+            if (Data[key].GetType() != typeof(string))
+                return null;
+
+            var serializer = new DataContractJsonSerializer(valueType);
+            var ms = new MemoryStream(Encoding.UTF8.GetBytes((string)Data[key]));
+
+            return serializer.ReadObject(ms);
+        }
     }
 }
