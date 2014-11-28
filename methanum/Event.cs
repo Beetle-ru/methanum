@@ -77,7 +77,7 @@ namespace methanum
             return sb.ToString();
         }
 
-        public void UAddData(string key, object ojb) {
+        public void SetData(string key, object ojb) {
             Data[key] = ojb;
         }
 
@@ -106,7 +106,7 @@ namespace methanum
         }
 
 
-        public void AddCustom(string key, object value) {
+        public void SetCustomData(string key, object value) {
             var serializer = new DataContractJsonSerializer(value.GetType());
             var ms = new MemoryStream();
 
@@ -115,7 +115,7 @@ namespace methanum
             var arr = ms.ToArray();
             var str = Encoding.UTF8.GetString(arr);
 
-            Data.Add(key, str);
+            SetData(key, str);
         }
 
         public object GetCustom(string key, Type valueType) {

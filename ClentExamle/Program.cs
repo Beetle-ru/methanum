@@ -31,8 +31,8 @@ namespace ClentExamle {
                 while (true) {
                     var msg = Console.ReadLine();
                     var evt = new Event("message");
-                    evt.Data.Add("name", userName);
-                    evt.Data.Add("text", msg);
+                    evt.SetData("name", userName);
+                    evt.SetData("text", msg);
 
                     maingate.Fire(evt);
                 }
@@ -43,7 +43,7 @@ namespace ClentExamle {
         }
 
         static private void MsgHandler(Event evt) {
-            Console.WriteLine("[{0}] >> {1}", evt.Data["name"], evt.Data["text"]);
+            Console.WriteLine("[{0}] >> {1}", evt.GetStr("name"), evt.GetStr("text"));
         }
 
     }
