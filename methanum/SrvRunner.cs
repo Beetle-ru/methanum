@@ -10,7 +10,8 @@ namespace methanum {
         private ServiceHost SHost;
 
         public void Start(int port) {
-            var uris = new[] { new Uri(string.Format("net.tcp://localhost:{0}", port)) };
+            var uris = new[] { new Uri(string.Format("net.tcp://0.0.0.0:{0}", port)) };
+            
 
             SHost = new ServiceHost(typeof (Gate), uris);
             SHost.Open();
