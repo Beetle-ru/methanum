@@ -23,7 +23,7 @@ namespace methanum
         public Guid Id { set; get; }
 
         [DataMember]
-        public Guid AccessId { set; get; }
+        public Guid ResponseTo { set; get; }
 
         [DataMember]
         public string FromProcess { get; set; }
@@ -49,10 +49,25 @@ namespace methanum
         private void Init() {
             Data = new Dictionary<string, object>();
             Id = Guid.NewGuid();
-            AccessId = new Guid();
+            ResponseTo = Guid.Empty;
             DataTime = DateTime.Now;
             var proc = Process.GetCurrentProcess();
             FromProcess = String.Format("{0}, ID[{1}]", proc.ProcessName, proc.Id);
+        }
+
+
+        public Event GetResponsForEvent(string operation) {
+            var evt = new Event(operation);
+            evt.ResponseTo = Id;
+            return evt;
+        }
+
+        public Event GetResponsForEvent() {
+            return GetResponsForEvent("response@[" + Operation + "]");
+        }
+
+        public bool IsResponse() {
+            return ResponseTo != Guid.Empty;
         }
 
         public override string ToString() {

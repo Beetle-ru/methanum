@@ -10,6 +10,7 @@ namespace methanum {
 
     public class Connector : IListener {
         private readonly Dictionary<string, CbHandler> _handlers;
+        private readonly Dictionary<Guid, CbHandler> _responseHandlers;
         private NetTcpBinding _binding;
         private EndpointAddress _endpointToAddress;
         private InstanceContext _instance;
@@ -23,6 +24,8 @@ namespace methanum {
 
         public event CbHandler ReceiveEvent;
 
+        private bool _isSubscribed;
+
         protected virtual void OnReceive(Event evt) {
             CbHandler handler = ReceiveEvent;
             if (handler != null) handler.BeginInvoke(evt, null, null);
@@ -31,6 +34,7 @@ namespace methanum {
         //localhost:2255
         public Connector(string address) {
             _handlers = new Dictionary<string, CbHandler>();
+            _responseHandlers = new Dictionary<Guid, CbHandler>();
             _fired = new List<Guid>();
 
             _binding = new NetTcpBinding();
@@ -52,16 +56,16 @@ namespace methanum {
         }
 
         private void Conect() {
-            var isSubscribed = false;
+            _isSubscribed = false;
 
-            while (!isSubscribed) {
+            while (!_isSubscribed) {
                 try {
                     _channelFactory = new DuplexChannelFactory<IGate>(_instance, _binding, _endpointToAddress);
 
                     _channel = _channelFactory.CreateChannel();
 
                     _channel.Subscribe();
-                    isSubscribed = true;
+                    _isSubscribed = true;
                 }
                 catch (Exception e) {
                     if (!(e is EndpointNotFoundException)) throw e;
@@ -77,9 +81,23 @@ namespace methanum {
             }
         }
 
+        public void Fire(Event evt, CbHandler responseHandler) {
+            lock (_responseHandlers) {
+                _responseHandlers[evt.Id] = responseHandler;
+            }
+
+            Fire(evt);
+        }
+
         private void FireProc() {
             while (true) {
-                if (_eventQueue.Any()) {
+                var isHasEventsToFire = false;
+
+                lock (_eventQueue) {
+                    isHasEventsToFire = _eventQueue.Any();
+                }
+
+                if (_isSubscribed && isHasEventsToFire) {
                     Event evt;
 
                     lock (_eventQueue) {
@@ -94,10 +112,9 @@ namespace methanum {
                             _eventQueue.Remove(evt);
                         }
                     }
-                    catch (Exception e) {
-                        if (!(e is CommunicationObjectFaultedException)) throw e;
-
-                        Conect();
+                    catch (Exception) {
+                        if (_isSubscribed)
+                            _isSubscribed = false;
                     }
                 } else Thread.Sleep(10);
             }
@@ -110,8 +127,7 @@ namespace methanum {
                 try {
                     _channel.Fire(evt);
                 } catch (Exception e) {
-                    if (!(e is CommunicationObjectFaultedException))
-                        throw e;
+                    Console.WriteLine(e.Message); // TODO make logger
 
                     Conect();
                 }
@@ -130,11 +146,18 @@ namespace methanum {
                 return;
             }
 
-            foreach (var cbHandler in _handlers) {
-                if (cbHandler.Key == evt.Operation) {
-                    cbHandler.Value.BeginInvoke(evt, null, null);
-                    break;
+            if (evt.IsResponse()) {
+                if (_responseHandlers.ContainsKey(evt.ResponseTo)) {
+                    _responseHandlers[evt.ResponseTo].BeginInvoke(evt, null, null);
+
+                    lock (_responseHandlers) {
+                        _responseHandlers.Remove(evt.ResponseTo);
+                    }
                 }
+            }
+
+            if (_handlers.ContainsKey(evt.Operation)) {
+                _handlers[evt.Operation].BeginInvoke(evt, null, null);
             }
 
             OnReceive(evt);
