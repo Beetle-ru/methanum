@@ -11,13 +11,22 @@ using System.Threading.Tasks;
 namespace methanum
 {
     [DataContract]
-    [KnownType(typeof(List<object>))]
-    [KnownType(typeof(List<int>))]
-    [KnownType(typeof(List<double>))]
-    [KnownType(typeof(List<string>))]
     [KnownType(typeof(List<bool>))]
-    [KnownType(typeof(List<char>))]
     [KnownType(typeof(List<byte>))]
+    [KnownType(typeof(List<sbyte>))]
+    [KnownType(typeof(List<char>))]
+    [KnownType(typeof(List<decimal>))]
+    [KnownType(typeof(List<double>))]
+    [KnownType(typeof(List<float>))]
+    [KnownType(typeof(List<int>))]
+    [KnownType(typeof(List<uint>))]
+    [KnownType(typeof(List<long>))]
+    [KnownType(typeof(List<ulong>))]
+    [KnownType(typeof(List<object>))]
+    [KnownType(typeof(List<short>))]
+    [KnownType(typeof(List<ushort>))]
+    [KnownType(typeof(List<string>))]
+    [KnownType(typeof(List<DateTime>))]
     public class Event {
         [DataMember]
         public Guid Id { set; get; }

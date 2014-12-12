@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
@@ -161,6 +162,20 @@ namespace methanum {
             }
 
             OnReceive(evt);
+        }
+
+        static public void HoldProcess() {
+            var processName = Process.GetCurrentProcess().ProcessName;
+            var defColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            Console.WriteLine("The {0} is ready", processName);
+            Console.WriteLine("Press <Enter> to terminate {0}", processName);
+
+            Console.ForegroundColor = defColor;
+
+            Console.ReadLine();
         }
     }
 }

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClentExamle", "ClentExamle\ClentExamle.csproj", "{E1ACB7D7-DDE3-4FEA-9B2C-52439FE95417}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBFlex", "DBFlex\DBFlex.csproj", "{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E1ACB7D7-DDE3-4FEA-9B2C-52439FE95417}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1ACB7D7-DDE3-4FEA-9B2C-52439FE95417}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1ACB7D7-DDE3-4FEA-9B2C-52439FE95417}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
