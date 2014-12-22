@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace methanum {
     public class SrvRunner {
-        private ServiceHost SHost;
+        private ServiceHost _sHost;
 
         public void Start(int port) {
             var uris = new[] { new Uri(string.Format("net.tcp://0.0.0.0:{0}", port)) };
             
+            _sHost = new ServiceHost(typeof (Gate), uris);
 
-            SHost = new ServiceHost(typeof (Gate), uris);
-            SHost.Open();
+            _sHost.Open();
 
-            foreach (Uri uri2 in SHost.BaseAddresses) {
+            foreach (Uri uri2 in _sHost.BaseAddresses) {
                 Console.WriteLine("Start on: {0}", uri2.ToString());
             }
         }
 
         public void Stop() {
-            SHost.Close();
+            _sHost.Close();
         }
     }
 }

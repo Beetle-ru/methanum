@@ -9,7 +9,7 @@ namespace Core {
     internal class Program {
         private static void Main(string[] args) {
             int port = 0;
-
+            args = new[] { "2255" };
             if ((!args.Any()) || (!int.TryParse(args[0], out port))) {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("Core.exe port");

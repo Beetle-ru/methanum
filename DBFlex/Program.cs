@@ -37,12 +37,22 @@ namespace DBFlex {
             return Configuration[setKey].Value;
         }
 
-        private static void DirectSql(Event evt) {
-            var sql = evt.GetStr("@SQL");
-
+        private static void BeginTask() {
             lock (Locker) {
                 Tasks++;
             }
+        }
+
+        private static void EndTask() {
+            lock (Locker) {
+                Tasks--;
+            }
+        }
+
+        private static void DirectSql(Event evt) {
+            var sql = evt.GetStr("@SQL");
+
+            BeginTask();
 
             Console.WriteLine("BEGIN [{0}] Tasks = {1}", evt.Id, Tasks);
 
@@ -55,9 +65,7 @@ namespace DBFlex {
 
             MainGate.Fire(respEvt);
 
-            lock (Locker) {
-                Tasks--;
-            }
+            EndTask();
 
             Console.WriteLine("DONE_ [{0}] Tasks = {1}", evt.Id, Tasks);
         }

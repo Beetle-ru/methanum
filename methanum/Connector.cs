@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
 
@@ -39,9 +40,11 @@ namespace methanum {
             _fired = new List<Guid>();
 
             _binding = new NetTcpBinding();
+
             _endpointToAddress = new EndpointAddress(string.Format("net.tcp://{0}", address));
 
             _instance = new InstanceContext(this);
+            
 
             Conect();
 
@@ -62,7 +65,7 @@ namespace methanum {
             while (!_isSubscribed) {
                 try {
                     _channelFactory = new DuplexChannelFactory<IGate>(_instance, _binding, _endpointToAddress);
-
+                    
                     _channel = _channelFactory.CreateChannel();
 
                     _channel.Subscribe();
@@ -104,16 +107,19 @@ namespace methanum {
                     lock (_eventQueue) {
                         evt = _eventQueue.First();
                     }
-                    
+
                     try {
                         _fired.Add(evt.Id);
-                        _channel.Fire(evt);
+
+                        //_channel.Fire(evt); // for recovery events after connection
 
                         lock (_eventQueue) {
                             _eventQueue.Remove(evt);
                         }
+
+                        _channel.Fire(evt); // for don`t recovery events after connection
                     }
-                    catch (Exception) {
+                    catch (Exception e) {
                         if (_isSubscribed)
                             _isSubscribed = false;
                     }
