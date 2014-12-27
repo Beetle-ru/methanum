@@ -13,20 +13,27 @@ namespace DBFlex {
         public static KeyValueConfigurationCollection Configuration;
         public static string ConnectionString;
         public static string CoreAddress;
+        public static string FsPatternPath;
         public static Connector MainGate;
         public static int Tasks;
         public static object Locker;
+        public static IPatternGetter FsPatterns;
 
         private static void Main(string[] args) {
             Configuration = ConfigurationManager.OpenExeConfiguration("").AppSettings.Settings;
             ConnectionString = GetSetting("ConnectionString");
             CoreAddress = GetSetting("CoreAddress");
+            FsPatternPath = GetSetting("FSPatternPath");
+
+            FsPatterns = new FsPatternGettern();
+            FsPatterns.SetSource(FsPatternPath);
 
             Locker = new object();
 
             MainGate = new Connector(CoreAddress);
 
             MainGate.SetHandler("DBFlex.DirectSQL", DirectSql);
+            MainGate.SetHandler("DBFlex.Pattern", PatternExec);
 
             Connector.HoldProcess();
         }
@@ -52,13 +59,25 @@ namespace DBFlex {
         private static void DirectSql(Event evt) {
             var sql = evt.GetStr("@SQL");
 
+            ExecTaskResp(evt, sql);
+        }
+
+        private static void PatternExec(Event evt) {
+            var patternName = evt.GetStr("@Pattern");
+            var sql = FsPatterns.GetPattern(patternName);
+            
+            ExecTaskResp(evt, sql);
+        }
+
+        private static void ExecTaskResp(Event evt, string sql) {
             BeginTask();
 
             Console.WriteLine("BEGIN [{0}] Tasks = {1}", evt.Id, Tasks);
 
             var parameters = new Dictionary<string, object>();
             foreach (var o in evt.Data) {
-                if (o.Key.StartsWith(":")) parameters.Add(o.Key, o.Value);
+                if (o.Key.StartsWith(":"))
+                    parameters.Add(o.Key, o.Value);
             }
 
             var respEvt = ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
