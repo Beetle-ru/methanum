@@ -28,6 +28,11 @@ namespace methanum {
 
         private bool _isSubscribed;
 
+        /// <summary>
+        /// If true then a messages don't lose after disconnection. A messages will be delivered after connect
+        /// </summary>
+        public bool IsSaveMode;
+
         protected virtual void OnReceive(Event evt) {
             CbHandler handler = ReceiveEvent;
             if (handler != null) handler.BeginInvoke(evt, null, null);
@@ -44,7 +49,8 @@ namespace methanum {
             _endpointToAddress = new EndpointAddress(string.Format("net.tcp://{0}", address));
 
             _instance = new InstanceContext(this);
-            
+
+            IsSaveMode = false;
 
             Conect();
 
@@ -111,15 +117,15 @@ namespace methanum {
                     try {
                         _fired.Add(evt.Id);
 
-                        //_channel.Fire(evt); // for recovery events after connection
+                        if (IsSaveMode) _channel.Fire(evt); // for recovery events after connection
 
                         lock (_eventQueue) {
                             _eventQueue.Remove(evt);
                         }
 
-                        _channel.Fire(evt); // for don`t recovery events after connection
+                        if (!IsSaveMode) _channel.Fire(evt); // for don`t recovery events after connection
                     }
-                    catch (Exception e) {
+                    catch (Exception) {
                         if (_isSubscribed)
                             _isSubscribed = false;
                     }
