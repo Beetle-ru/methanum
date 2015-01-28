@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseDataBaseDriver.cs" />
     <Compile Include="FSPatternGettern.cs" />
     <Compile Include="IDataBaseDriver.cs" />
     <Compile Include="IPatternGetter.cs" />

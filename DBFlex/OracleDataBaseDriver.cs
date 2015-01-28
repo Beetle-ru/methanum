@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using methanum;
 
 namespace DBFlex {
-    class OracleDataBaseDriver : IDataBaseDriver {
+    class OracleDataBaseDriver : BaseDataBaseDriver {
         public string ConnectionString;
 
         public OracleDataBaseDriver(string connectionString) {
@@ -22,7 +22,7 @@ namespace DBFlex {
             return conn;
         }
 
-        public Event ExecuteSql(Event evt, string sql, Dictionary<string, object> parameters) {
+        public override Event ExecuteSql(Event evt, string sql, Dictionary<string, object> parameters) {
             var errorMessage = "";
             var stackTrace = "";
             var recordCount = 0;
@@ -69,10 +69,6 @@ namespace DBFlex {
             evt.SetData("@RecordCount", recordCount);
 
             return evt;
-        }
-
-        System.Collections.IList ConstructGenericList(Type t) {
-            return (System.Collections.IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(t));
         }
     }
 }
