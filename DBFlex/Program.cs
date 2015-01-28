@@ -14,21 +14,26 @@ namespace DBFlex {
         public static string ConnectionString;
         public static string CoreAddress;
         public static string FsPatternPath;
+        public static string DataBaseDriverName;
         public static Connector MainGate;
         public static int Tasks;
         public static object Locker;
         public static IPatternGetter FsPatterns;
+        public static IDataBaseDriver DataBaseDriver;
 
         private static void Main(string[] args) {
             Configuration = ConfigurationManager.OpenExeConfiguration("").AppSettings.Settings;
             ConnectionString = GetSetting("ConnectionString");
             CoreAddress = GetSetting("CoreAddress");
             FsPatternPath = GetSetting("FSPatternPath");
+            DataBaseDriverName = GetSetting("DataBaseDriver");
 
             FsPatterns = new FsPatternGettern();
             FsPatterns.SetSource(FsPatternPath);
 
             Locker = new object();
+
+            DataBaseDriver = CreateDataBaseDriver(DataBaseDriverName);
 
             MainGate = new Connector(CoreAddress);
 
@@ -79,8 +84,9 @@ namespace DBFlex {
                 if (o.Key.StartsWith(":"))
                     parameters.Add(o.Key, o.Value);
             }
-
-            var respEvt = ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
+            
+            var connector = (IDataBaseDriver) new OracleDataBaseDriver(ConnectionString); // TODO
+            var respEvt = connector.ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
 
             MainGate.Fire(respEvt);
 
@@ -89,65 +95,19 @@ namespace DBFlex {
             Console.WriteLine("DONE_ [{0}] Tasks = {1}", evt.Id, Tasks);
         }
 
-        private static Event ExecuteSql(Event evt, string sql, Dictionary<string, object> parameters) {
-            var errorMessage = "";
-            var stackTrace = "";
-            var recordCount = 0;
+        private static IDataBaseDriver CreateDataBaseDriver(string dataBaseDriverName) {
+            IDataBaseDriver dataBaseDriver = null;
 
-            try {
-                using (var conn = Connect()) {
-                    using (var command = conn.CreateCommand()) {
-                        command.CommandText = sql;
-                        command.CommandType = CommandType.Text;
+            switch (dataBaseDriverName.ToUpper()) {
+                case "ORACLE" :
+                    dataBaseDriver = new OracleDataBaseDriver(ConnectionString);
+                    break;
+                default :
+                    throw new Exception("Не верное имя драйвера базы = " + dataBaseDriverName);
 
-                        foreach (var parameter in parameters) {
-                            command.Parameters.Add(parameter.Key, parameter.Value);
-                        }
-
-                        var reader = command.ExecuteReader();
-
-                        while (reader.Read()) {
-                            recordCount++;
-
-                            for (int i = 0; i < reader.FieldCount; i++) { 
-                                var fieldName = reader.GetName(i);
-                                var val = reader[i];
-                                var typeVal = val.GetType();
-
-                                var obj = evt.GetObj(fieldName);
-                                var currentField = (System.Collections.IList)obj ?? ConstructGenericList(typeVal);
-
-                                currentField.Add(reader[i]);
-
-                                evt.SetData(fieldName, currentField);
-
-
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e) {
-                errorMessage = e.Message;
-                stackTrace = e.StackTrace;
             }
 
-            evt.SetData("@ErrorMessage", errorMessage);
-            evt.SetData("@StackTrace", stackTrace);
-            evt.SetData("@RecordCount", recordCount);
-
-            return evt;
-        }
-
-        private static OracleConnection Connect() {
-            var conn = new OracleConnection(ConnectionString);
-            conn.Open();
-
-            return conn;
-        }
-
-        public static System.Collections.IList ConstructGenericList(Type t) {
-            return (System.Collections.IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(t));
+            return dataBaseDriver;
         }
     }
 }

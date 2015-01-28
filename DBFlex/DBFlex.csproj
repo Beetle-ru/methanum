@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FSPatternGettern.cs" />
+    <Compile Include="IDataBaseDriver.cs" />
     <Compile Include="IPatternGetter.cs" />
+    <Compile Include="OracleDataBaseDriver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
