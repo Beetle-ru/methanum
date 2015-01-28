@@ -84,9 +84,8 @@ namespace DBFlex {
                 if (o.Key.StartsWith(":"))
                     parameters.Add(o.Key, o.Value);
             }
-            
-            var connector = (IDataBaseDriver) new OracleDataBaseDriver(ConnectionString); // TODO
-            var respEvt = connector.ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
+
+            var respEvt = DataBaseDriver.ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
 
             MainGate.Fire(respEvt);
 
@@ -101,6 +100,9 @@ namespace DBFlex {
             switch (dataBaseDriverName.ToUpper()) {
                 case "ORACLE" :
                     dataBaseDriver = new OracleDataBaseDriver(ConnectionString);
+                    break;
+                case "SQLITE":
+                    dataBaseDriver = new SqliteDataBaseDriver(ConnectionString);
                     break;
                 default :
                     throw new Exception("Не верное имя драйвера базы = " + dataBaseDriverName);
