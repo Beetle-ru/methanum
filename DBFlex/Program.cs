@@ -77,7 +77,7 @@ namespace DBFlex {
         private static void ExecTaskResp(Event evt, string sql) {
             BeginTask();
 
-            Console.WriteLine("REQ  [{0}] Tasks = {1}", evt.Id, Tasks);
+            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\"", evt.Id, Tasks, evt.Destination);
 
             var parameters = new Dictionary<string, object>();
             foreach (var o in evt.Data) {
