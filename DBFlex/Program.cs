@@ -77,7 +77,7 @@ namespace DBFlex {
         private static void ExecTaskResp(Event evt, string sql) {
             BeginTask();
 
-            Console.WriteLine("BEGIN [{0}] Tasks = {1}", evt.Id, Tasks);
+            Console.WriteLine("REQ  [{0}] Tasks = {1}", evt.Id, Tasks);
 
             var parameters = new Dictionary<string, object>();
             foreach (var o in evt.Data) {
@@ -91,7 +91,7 @@ namespace DBFlex {
 
             EndTask();
 
-            Console.WriteLine("DONE_ [{0}] Tasks = {1}", evt.Id, Tasks);
+            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.Id, Tasks, evt.BackDestination);
         }
 
         private static IDataBaseDriver CreateDataBaseDriver(string dataBaseDriverName) {
