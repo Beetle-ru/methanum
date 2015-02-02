@@ -41,7 +41,10 @@ namespace methanum
         public DateTime DataTime { get; set; }
 
         [DataMember]
-        public string Operation { get; set; }
+        public string Destination { get; set; }
+
+        [DataMember]
+        public string BackDestination { get; set; }
 
         [DataMember]
         public Dictionary<string, object> Data { get; set; }
@@ -50,9 +53,10 @@ namespace methanum
             Init();
         }
 
-        public Event(string operation) {
+        public Event(string destination) {
             Init();
-            Operation = operation;
+            Destination = destination;
+            BackDestination = "";
         }
 
         private void Init() {
@@ -65,14 +69,15 @@ namespace methanum
         }
 
 
-        public Event GetResponsForEvent(string operation) {
-            var evt = new Event(operation);
+        public Event GetResponsForEvent(string destination) {
+            var evt = new Event(destination);
             evt.ResponseTo = Id;
             return evt;
         }
 
         public Event GetResponsForEvent() {
-            return GetResponsForEvent("response@[" + Operation + "]");
+            var newDestination = string.IsNullOrWhiteSpace(BackDestination) ? "response@[" + Destination + "]" : BackDestination;
+            return GetResponsForEvent(newDestination);
         }
 
         public bool IsResponse() {

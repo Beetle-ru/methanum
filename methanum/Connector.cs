@@ -99,6 +99,11 @@ namespace methanum {
             Fire(evt);
         }
 
+        public void Fire(Event evt, string backDestination) {
+            evt.BackDestination = backDestination;
+            Fire(evt);
+        }
+
         private void FireProc() {
             while (true) {
                 var isHasEventsToFire = false;
@@ -149,8 +154,8 @@ namespace methanum {
             }
         }
 
-        public void SetHandler(string operation, CbHandler handler) {
-            _handlers[operation] = handler;
+        public void SetHandler(string destination, CbHandler handler) {
+            _handlers[destination] = handler;
         }
 
         public void Receive(Event evt) {
@@ -169,8 +174,8 @@ namespace methanum {
                 }
             }
 
-            if (_handlers.ContainsKey(evt.Operation)) {
-                _handlers[evt.Operation].BeginInvoke(evt, null, null);
+            if (_handlers.ContainsKey(evt.Destination)) {
+                _handlers[evt.Destination].BeginInvoke(evt, null, null);
             }
 
             OnReceive(evt);
