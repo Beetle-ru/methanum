@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -32,7 +33,7 @@ namespace methanum
         public Guid Id { set; get; }
 
         [DataMember]
-        public Guid ResponseTo { set; get; }
+        public Guid InitiatorId { set; get; }
 
         [DataMember]
         public string FromProcess { get; set; }
@@ -62,7 +63,7 @@ namespace methanum
         private void Init() {
             Data = new Dictionary<string, object>();
             Id = Guid.NewGuid();
-            ResponseTo = Guid.Empty;
+            InitiatorId = Guid.Empty;
             DataTime = DateTime.Now;
             var proc = Process.GetCurrentProcess();
             FromProcess = String.Format("{0}, ID[{1}]", proc.ProcessName, proc.Id);
@@ -71,7 +72,7 @@ namespace methanum
 
         public Event GetResponsForEvent(string destination) {
             var evt = new Event(destination);
-            evt.ResponseTo = Id;
+            evt.InitiatorId = Id;
             return evt;
         }
 
@@ -81,7 +82,7 @@ namespace methanum
         }
 
         public bool IsResponse() {
-            return ResponseTo != Guid.Empty;
+            return InitiatorId != Guid.Empty;
         }
 
         public override string ToString() {
@@ -116,10 +117,22 @@ namespace methanum
             return Data[key];
         }
 
+        public object GetObj(string key, int index) {
+            if (!Data.ContainsKey(key))
+                return null;
+            return GetItm(key, index);
+        }
+
         public double GetDbl(string key) {
             if (!Data.ContainsKey(key))
                 return Double.NaN;
             return Convert.ToDouble(Data[key]);
+        }
+
+        public double GetDbl(string key, int index) {
+            if (!Data.ContainsKey(key))
+                return Double.NaN;
+            return Convert.ToDouble(GetItm(key, index));
         }
 
         public int GetInt(string key) {
@@ -128,12 +141,27 @@ namespace methanum
             return Convert.ToInt32(Data[key]);
         }
 
+        public int GetInt(string key, int index) {
+            if (!Data.ContainsKey(key))
+                return Int32.MinValue;
+            return Convert.ToInt32(GetItm(key, index));
+        }
+
+        public object GetItm(string key, int index) {
+            return ((IList) Data[key])[index];
+        }
+
         public string GetStr(string key) {
             if (!Data.ContainsKey(key))
                 return null;
             return Convert.ToString(Data[key]);
         }
 
+        public string GetStr(string key, int index) {
+            if (!Data.ContainsKey(key))
+                return null;
+            return Convert.ToString(GetItm(key, index));
+        }
 
         public void SetCustomData(string key, object value) {
             var serializer = new DataContractJsonSerializer(value.GetType());
