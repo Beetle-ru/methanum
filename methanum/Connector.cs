@@ -165,11 +165,11 @@ namespace methanum {
             }
 
             if (evt.IsResponse()) {
-                if (_responseHandlers.ContainsKey(evt.InitiatorId)) {
-                    _responseHandlers[evt.InitiatorId].BeginInvoke(evt, null, null);
+                if (_responseHandlers.ContainsKey(evt.TransactionId)) {
+                    _responseHandlers[evt.TransactionId].BeginInvoke(evt, null, null);
 
                     lock (_responseHandlers) {
-                        _responseHandlers.Remove(evt.InitiatorId);
+                        _responseHandlers.Remove(evt.TransactionId);
                     }
                 }
             }
