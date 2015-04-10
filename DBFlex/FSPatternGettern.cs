@@ -7,7 +7,7 @@ using System.IO;
 
 namespace DBFlex {
     class FsPatternGettern : IPatternGetter {
-        private const string SearchPattern = "*.ptrn";
+        private const string SearchPattern = "*.sql";
 
         private string _filePath;
         private Dictionary<string, string> _patterns;
