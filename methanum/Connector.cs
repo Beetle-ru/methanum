@@ -93,7 +93,7 @@ namespace methanum {
 
         public void Fire(Event evt, CbHandler responseHandler) {
             lock (_responseHandlers) {
-                _responseHandlers[evt.Id] = responseHandler;
+                _responseHandlers[evt.TransactionId] = responseHandler;
             }
 
             Fire(evt);

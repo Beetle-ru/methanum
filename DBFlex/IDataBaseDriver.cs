@@ -8,5 +8,6 @@ using methanum;
 namespace DBFlex {
     interface IDataBaseDriver {
         Event ExecuteSql(Event evt, string sql, Dictionary<string, object> parameters);
+        List<Event> Chopper(Event initiator, string sql, Dictionary<string, object> parameters);
     }
 }

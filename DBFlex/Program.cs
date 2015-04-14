@@ -77,7 +77,7 @@ namespace DBFlex {
         private static void ExecTaskResp(Event evt, string sql) {
             BeginTask();
 
-            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\"", evt.Id, Tasks, evt.Destination);
+            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\"", evt.TransactionId, Tasks, evt.Destination);
 
             var parameters = new Dictionary<string, object>();
             foreach (var o in evt.Data) {
@@ -85,13 +85,26 @@ namespace DBFlex {
                     parameters.Add(o.Key, o.Value);
             }
 
-            var respEvt = DataBaseDriver.ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
+            //var respEvt = DataBaseDriver.ExecuteSql(evt.GetResponsForEvent(), sql, parameters);
 
-            MainGate.Fire(respEvt);
+            var respEvt = DataBaseDriver.Chopper(evt, sql, parameters);
+
+            if (respEvt.Any()) {
+                foreach (var @event in respEvt) {
+                    MainGate.Fire(@event);
+                    Console.WriteLine("FIRE [{0}] TransactionId = {1}", @event.Id, @event.TransactionId);
+                }
+            }
+            else {
+                var noResult = evt.GetResponsForEvent();
+                noResult.SetData("@NoResult", true);
+                MainGate.Fire(noResult);
+            }
+
 
             EndTask();
 
-            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.Id, Tasks, evt.BackDestination);
+            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.TransactionId, Tasks, evt.BackDestination);
         }
 
         private static IDataBaseDriver CreateDataBaseDriver(string dataBaseDriverName) {

@@ -70,5 +70,9 @@ namespace DBFlex {
 
             return evt;
         }
+
+        public override List<Event> Chopper(Event initiator, string sql, Dictionary<string, object> parameters) {
+            throw new NotImplementedException();
+        }
     }
 }

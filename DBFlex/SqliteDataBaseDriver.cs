@@ -47,6 +47,7 @@ namespace DBFlex {
 
                         for (int i = 0; i < reader.FieldCount; i++) {
                             var fieldName = reader.GetName(i);
+
                             var val = reader[i];
                             var typeVal = val.GetType();
 
@@ -70,6 +71,53 @@ namespace DBFlex {
             evt.SetData("@RecordCount", recordCount);
 
             return evt;
+        }
+
+        public override List<Event> Chopper(Event initiator, string sql, Dictionary<string, object> parameters) {
+            var events = new List<Event>();
+            var recordCount = 0;
+
+            try {
+                var conn = Connect();
+                using (var command = conn.CreateCommand()) {
+                    command.CommandText = sql;
+                    command.CommandType = CommandType.Text;
+
+                    foreach (var parameter in parameters) {
+                        command.Parameters.Add(new SQLiteParameter(parameter.Key, parameter.Value));
+                    }
+
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read()) {
+                        var evt = initiator.GetResponsForEvent();
+
+                        for (int i = 0; i < reader.FieldCount; i++) {
+                            var fieldName = reader.GetName(i);
+                            var val = reader[i];
+                            evt.SetData(fieldName, val);
+                        }
+
+                        evt.SetData("@RecordCount", recordCount);
+                        evt.SetData("@HasRows", reader.HasRows);
+                        events.Add(evt);
+
+                        recordCount++;
+                    }
+                }
+            } catch (Exception e) {
+                var errorMessage = e.Message;
+                var stackTrace = e.StackTrace;
+
+                var evt = initiator.GetResponsForEvent();
+                evt.SetData("@ErrorMessage", errorMessage);
+                evt.SetData("@StackTrace", stackTrace);
+                evt.SetData("@RecordCount", recordCount);
+            }
+
+            if (events.Any()) events.Last().SetData("@HasRows", false);
+
+            return events;
         }
     }
 }

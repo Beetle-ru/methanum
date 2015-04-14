@@ -63,7 +63,7 @@ namespace methanum
         private void Init() {
             Data = new Dictionary<string, object>();
             Id = Guid.NewGuid();
-            TransactionId = Guid.Empty;
+            TransactionId = Guid.NewGuid();
             DataTime = DateTime.Now;
             var proc = Process.GetCurrentProcess();
             FromProcess = String.Format("{0}, ID[{1}]", proc.ProcessName, proc.Id);
@@ -72,7 +72,7 @@ namespace methanum
 
         public Event GetResponsForEvent(string destination) {
             var evt = new Event(destination);
-            evt.TransactionId = Id;
+            evt.TransactionId = TransactionId;
             return evt;
         }
 
@@ -145,6 +145,18 @@ namespace methanum
             if (!Data.ContainsKey(key))
                 return Int32.MinValue;
             return Convert.ToInt32(GetItm(key, index));
+        }
+
+        public bool GetBool(string key) {
+            if (!Data.ContainsKey(key))
+                return false;
+            return Convert.ToBoolean(Data[key]);
+        }
+
+        public bool GetBool(string key, int index) {
+            if (!Data.ContainsKey(key))
+                return false;
+            return Convert.ToBoolean(GetItm(key, index));
         }
 
         public object GetItm(string key, int index) {
