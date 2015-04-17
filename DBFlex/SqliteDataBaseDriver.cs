@@ -94,8 +94,13 @@ namespace DBFlex {
 
                         for (int i = 0; i < reader.FieldCount; i++) {
                             var fieldName = reader.GetName(i);
-                            var val = reader[i];
-                            evt.SetData(fieldName, val);
+                            if (reader[i] is System.DBNull) {
+                                evt.SetData(fieldName, null);
+                            }
+                            else {
+                                var val = reader[i];
+                                evt.SetData(fieldName, val);
+                            }
                         }
 
                         evt.SetData("@RecordCount", recordCount);
