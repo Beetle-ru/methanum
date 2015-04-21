@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 
 namespace methanum
 {
@@ -176,13 +177,9 @@ namespace methanum
         }
 
         public void SetCustomData(string key, object value) {
-            var serializer = new DataContractJsonSerializer(value.GetType());
-            var ms = new MemoryStream();
+            var serializer = new JavaScriptSerializer();
 
-            serializer.WriteObject(ms, value);
-            ms.Close();
-            var arr = ms.ToArray();
-            var str = Encoding.UTF8.GetString(arr);
+            var str = serializer.Serialize(value);
 
             SetData(key, str);
         }
@@ -193,10 +190,11 @@ namespace methanum
             if (Data[key].GetType() != typeof(string))
                 return null;
 
-            var serializer = new DataContractJsonSerializer(valueType);
-            var ms = new MemoryStream(Encoding.UTF8.GetBytes((string)Data[key]));
+            var serializer = new JavaScriptSerializer();
+            var str = (string) Data[key];
+            var obj = serializer.Deserialize(str, valueType);
 
-            return serializer.ReadObject(ms);
+            return obj;
         }
     }
 }
