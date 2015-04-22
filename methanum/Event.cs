@@ -30,24 +30,51 @@ namespace methanum
     [KnownType(typeof(List<string>))]
     [KnownType(typeof(List<DateTime>))]
     public class Event {
+        /// <summary>
+        /// The Unique id of the event
+        /// </summary>
         [DataMember]
         public Guid Id { set; get; }
 
+        /// <summary>
+        /// The transaction Id of a events for example it can use for request-response iterations
+        /// </summary>
         [DataMember]
         public Guid TransactionId { set; get; }
 
+        /// <summary>
+        /// The Address need for target sending events
+        /// </summary>
+        [DataMember]
+        public string Address { set; get; }
+
+        /// <summary>
+        /// Process information
+        /// </summary>
         [DataMember]
         public string FromProcess { get; set; }
 
+        /// <summary>
+        /// DataTime of event generation
+        /// </summary>
         [DataMember]
         public DateTime DataTime { get; set; }
 
+        /// <summary>
+        /// Handler name
+        /// </summary>
         [DataMember]
         public string Destination { get; set; }
 
+        /// <summary>
+        /// It is allowing to generate response
+        /// </summary>
         [DataMember]
         public string BackDestination { get; set; }
 
+        /// <summary>
+        /// Contains data
+        /// </summary>
         [DataMember]
         public Dictionary<string, object> Data { get; set; }
 

@@ -11,8 +11,8 @@ namespace methanum {
     public delegate void CbHandler(Event evt);
 
     public class Connector : IListener {
-        private readonly Dictionary<string, CbHandler> _handlers;
-        private readonly Dictionary<Guid, CbHandler> _responseHandlers;
+        private Dictionary<string, CbHandler> _handlers;
+        private Dictionary<Guid, CbHandler> _responseHandlers;
         private NetTcpBinding _binding;
         private EndpointAddress _endpointToAddress;
         private InstanceContext _instance;
@@ -25,6 +25,8 @@ namespace methanum {
         private Thread _keepAliveThread;
 
         public event CbHandler ReceiveEvent;
+
+        public string Address;
 
         private bool _isSubscribed;
 
@@ -39,14 +41,23 @@ namespace methanum {
         }
 
         //localhost:2255
-        public Connector(string address) {
+        public Connector(string ipAddress) {
+            init(ipAddress);
+        }
+
+        public Connector(string ipAddress, string listenerAddress) {
+            Address = listenerAddress;
+            init(ipAddress);
+        }
+
+        private void init(string ipAddress) {
             _handlers = new Dictionary<string, CbHandler>();
             _responseHandlers = new Dictionary<Guid, CbHandler>();
             _fired = new List<Guid>();
 
             _binding = new NetTcpBinding();
 
-            _endpointToAddress = new EndpointAddress(string.Format("net.tcp://{0}", address));
+            _endpointToAddress = new EndpointAddress(string.Format("net.tcp://{0}", ipAddress));
 
             _instance = new InstanceContext(this);
 
@@ -102,6 +113,11 @@ namespace methanum {
         public void Fire(Event evt, string backDestination) {
             evt.BackDestination = backDestination;
             Fire(evt);
+        }
+
+        public void Fire(Event evt, string backDestination, string address) {
+            evt.Address = address;
+            Fire(evt, backDestination);
         }
 
         private void FireProc() {
@@ -174,7 +190,7 @@ namespace methanum {
                 }
             }
 
-            if (_handlers.ContainsKey(evt.Destination)) {
+            if ((Address == evt.Address) && _handlers.ContainsKey(evt.Destination)) {
                 _handlers[evt.Destination].BeginInvoke(evt, null, null);
             }
 
