@@ -17,7 +17,7 @@ namespace CoreLogger {
         public const int Refrashtimeout = 5000; // ms
 
         static void Main(string[] args) {
-            args = new[] {"localhost:2255"};
+            //args = new[] {"localhost:2255"};
             if ((!args.Any())) {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("ClentExample.exe coreAddress:port");
