@@ -17,12 +17,17 @@ namespace DBFlex {
         }
 
         private SQLiteConnection Connect() {
-            if (_connection == null) {
-                _connection = new SQLiteConnection(ConnectionString);
-                _connection.Open();
-            }
+            lock (ConnectionString) {
+                if (_connection == null) {
+                    _connection = new SQLiteConnection(ConnectionString);
+                    _connection.Open();
+                    while (_connection.State != ConnectionState.Open) {
+                        Console.Write(".");
+                    }
+                }
 
-            return _connection;
+                return _connection;
+            }
         }
 
         public override Event ExecuteSql(Event evt, string sql, Dictionary<string, object> parameters) {
@@ -115,9 +120,12 @@ namespace DBFlex {
                 var stackTrace = e.StackTrace;
 
                 var evt = initiator.GetResponsForEvent();
+                evt.SetData("@Sql", sql);
                 evt.SetData("@ErrorMessage", errorMessage);
                 evt.SetData("@StackTrace", stackTrace);
                 evt.SetData("@RecordCount", recordCount);
+
+                Console.WriteLine(evt);
             }
 
             if (events.Any()) events.Last().SetData("@HasRows", false);

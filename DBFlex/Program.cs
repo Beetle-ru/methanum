@@ -18,8 +18,10 @@ namespace DBFlex {
         public static Connector MainGate;
         public static int Tasks;
         public static object Locker;
+        public static object Synchronizer;
         public static IPatternGetter FsPatterns;
         public static IDataBaseDriver DataBaseDriver;
+        public static bool IsSynchroMode;
 
         private static void Main(string[] args) {
             Configuration = ConfigurationManager.OpenExeConfiguration("").AppSettings.Settings;
@@ -28,10 +30,13 @@ namespace DBFlex {
             FsPatternPath = GetSetting("FSPatternPath");
             DataBaseDriverName = GetSetting("DataBaseDriver");
 
+            IsSynchroMode = Configuration["IsSynchroMode"].Value == "True";
+
             FsPatterns = new FsPatternGettern();
             FsPatterns.SetSource(FsPatternPath);
 
             Locker = new object();
+            Synchronizer = new object();
 
             DataBaseDriver = CreateDataBaseDriver(DataBaseDriverName);
 
@@ -70,14 +75,22 @@ namespace DBFlex {
         private static void PatternExec(Event evt) {
             var patternName = evt.GetStr("@Pattern");
             var sql = FsPatterns.GetPattern(patternName);
-            
-            ExecTaskResp(evt, sql);
+
+            if (IsSynchroMode) {
+                lock (Synchronizer) {
+                    ExecTaskResp(evt, sql);
+                }
+            }
+            else {
+                ExecTaskResp(evt, sql);
+            }
         }
 
         private static void ExecTaskResp(Event evt, string sql) {
             BeginTask();
 
-            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\"", evt.TransactionId, Tasks, evt.Destination);
+            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\" |-{3}-|", evt.TransactionId, Tasks,
+                evt.Destination, evt.Id.ToString().Last());
 
             var parameters = new Dictionary<string, object>();
             foreach (var o in evt.Data) {
@@ -104,22 +117,23 @@ namespace DBFlex {
 
             EndTask();
 
-            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.TransactionId, Tasks, evt.BackDestination);
+            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.TransactionId, Tasks,
+                evt.BackDestination);
         }
+
 
         private static IDataBaseDriver CreateDataBaseDriver(string dataBaseDriverName) {
             IDataBaseDriver dataBaseDriver = null;
 
             switch (dataBaseDriverName.ToUpper()) {
-                case "ORACLE" :
+                case "ORACLE":
                     dataBaseDriver = new OracleDataBaseDriver(ConnectionString);
                     break;
                 case "SQLITE":
                     dataBaseDriver = new SqliteDataBaseDriver(ConnectionString);
                     break;
-                default :
+                default:
                     throw new Exception("Не верное имя драйвера базы = " + dataBaseDriverName);
-
             }
 
             return dataBaseDriver;
