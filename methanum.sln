@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "methanum", "methanum\methanum.csproj", "{15AF9C81-B89B-4424-AD5B-C77C5C507984}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClentExamle", "ClentExamle\ClentExamle.csproj", "{E1ACB7D7-DDE3-4FEA-9B2C-52439FE95417}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBFlex", "DBFlex\DBFlex.csproj", "{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreLogger", "CoreLogger\CoreLogger.csproj", "{F3409A8A-95B8-4C6A-8D4A-800578ED7C5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8B74669-9AD6-4C76-8E08-C7C9C3F3410C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3409A8A-95B8-4C6A-8D4A-800578ED7C5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3409A8A-95B8-4C6A-8D4A-800578ED7C5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3409A8A-95B8-4C6A-8D4A-800578ED7C5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3409A8A-95B8-4C6A-8D4A-800578ED7C5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
