@@ -40,13 +40,7 @@ namespace methanum
         /// The transaction Id of a events for example it can use for request-response iterations
         /// </summary>
         [DataMember]
-        public Guid TransactionId { set; get; }
-
-        /// <summary>
-        /// The Address need for target sending events
-        /// </summary>
-        [DataMember]
-        public string Address { set; get; }
+        public Guid Transaction { set; get; }
 
         /// <summary>
         /// Process information
@@ -88,10 +82,17 @@ namespace methanum
             BackDestination = "";
         }
 
+        public Event(string destination, Guid transaction) {
+            Init();
+            Destination = destination;
+            BackDestination = "";
+            Transaction = transaction;
+        }
+
         private void Init() {
             Data = new Dictionary<string, object>();
             Id = Guid.NewGuid();
-            TransactionId = Guid.NewGuid();
+            Transaction = Guid.NewGuid();
             DataTime = DateTime.Now;
             var proc = Process.GetCurrentProcess();
             FromProcess = String.Format("{0}, ID[{1}]", proc.ProcessName, proc.Id);
@@ -100,7 +101,7 @@ namespace methanum
 
         public Event GetResponsForEvent(string destination) {
             var evt = new Event(destination);
-            evt.TransactionId = TransactionId;
+            evt.Transaction = Transaction;
             return evt;
         }
 
@@ -110,7 +111,7 @@ namespace methanum
         }
 
         public bool IsResponse() {
-            return TransactionId != Guid.Empty;
+            return Transaction != Guid.Empty;
         }
 
         public override string ToString() {

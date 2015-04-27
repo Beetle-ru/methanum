@@ -26,8 +26,6 @@ namespace methanum {
 
         public event CbHandler ReceiveEvent;
 
-        public string Address;
-
         private bool _isSubscribed;
 
         /// <summary>
@@ -42,11 +40,6 @@ namespace methanum {
 
         //localhost:2255
         public Connector(string ipAddress) {
-            init(ipAddress);
-        }
-
-        public Connector(string ipAddress, string listenerAddress) {
-            Address = listenerAddress;
             init(ipAddress);
         }
 
@@ -109,7 +102,7 @@ namespace methanum {
 
         public void Fire(Event evt, CbHandler responseHandler) {
             lock (_responseHandlers) {
-                _responseHandlers[evt.TransactionId] = responseHandler;
+                _responseHandlers[evt.Transaction] = responseHandler;
             }
 
             Fire(evt);
@@ -120,8 +113,8 @@ namespace methanum {
             Fire(evt);
         }
 
-        public void Fire(Event evt, string backDestination, string address) {
-            evt.Address = address;
+        public void Fire(Event evt, string backDestination, Guid transaction) {
+            evt.Transaction = transaction;
             Fire(evt, backDestination);
         }
 
@@ -186,16 +179,16 @@ namespace methanum {
             }
 
             if (evt.IsResponse()) {
-                if (_responseHandlers.ContainsKey(evt.TransactionId)) {
-                    _responseHandlers[evt.TransactionId].BeginInvoke(evt, null, null);
+                if (_responseHandlers.ContainsKey(evt.Transaction)) {
+                    _responseHandlers[evt.Transaction].BeginInvoke(evt, null, null);
 
                     lock (_responseHandlers) {
-                        _responseHandlers.Remove(evt.TransactionId);
+                        _responseHandlers.Remove(evt.Transaction);
                     }
                 }
             }
 
-            if ((Address == evt.Address) && _handlers.ContainsKey(evt.Destination)) {
+            if (_handlers.ContainsKey(evt.Destination)) {
                 _handlers[evt.Destination].BeginInvoke(evt, null, null);
             }
 

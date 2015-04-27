@@ -89,7 +89,7 @@ namespace DBFlex {
         private static void ExecTaskResp(Event evt, string sql) {
             BeginTask();
 
-            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\" |-{3}-|", evt.TransactionId, Tasks,
+            Console.WriteLine("REQ  [{0}] Tasks = {1} Destination = \"{2}\" |-{3}-|", evt.Transaction, Tasks,
                 evt.Destination, evt.Id.ToString().Last());
 
             var parameters = new Dictionary<string, object>();
@@ -105,7 +105,7 @@ namespace DBFlex {
             if (respEvt.Any()) {
                 foreach (var @event in respEvt) {
                     MainGate.Fire(@event);
-                    Console.WriteLine("FIRE [{0}] TransactionId = {1}", @event.Id, @event.TransactionId);
+                    Console.WriteLine("FIRE [{0}] TransactionId = {1}", @event.Id, @event.Transaction);
                 }
             }
             else {
@@ -117,7 +117,7 @@ namespace DBFlex {
 
             EndTask();
 
-            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.TransactionId, Tasks,
+            Console.WriteLine("RESP [{0}] Tasks = {1} Destination = \"{2}\"", evt.Transaction, Tasks,
                 evt.BackDestination);
         }
 

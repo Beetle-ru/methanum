@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace CoreLogger {
     class Program {
-        public static List<Event> EventPull;
+        public static Queue<Event> EventPull;
         public static DateTime Today;
         public static string FileName;
         public static StreamWriter FileStreamWriter;
@@ -24,7 +24,7 @@ namespace CoreLogger {
                 Environment.Exit(1);
             }
 
-            EventPull = new List<Event>();
+            EventPull = new Queue<Event>();
 
             Today = DateTime.Today;
 
@@ -46,7 +46,7 @@ namespace CoreLogger {
             
             lock (EventPull) {
                 if (evt.Destination != "keepAlive") {
-                    EventPull.Add(evt);
+                    EventPull.Enqueue(evt);
                     Console.Write(".");
                 }
             }
@@ -60,8 +60,7 @@ namespace CoreLogger {
                     isHas = EventPull.Any();
 
                     if (isHas) {
-                        var evt = EventPull.Last();
-                        EventPull.RemoveAt(EventPull.Count - 1);
+                        var evt = EventPull.Dequeue();
 
                         WriteLog(evt.ToString());
                         Console.WriteLine(evt.Id);
