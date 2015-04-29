@@ -17,7 +17,7 @@ namespace CoreLogger {
         public const int Refrashtimeout = 5000; // ms
 
         static void Main(string[] args) {
-            //args = new[] {"localhost:2255"};
+            args = new[] {"localhost:2255"};
             if ((!args.Any())) {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("ClentExample.exe coreAddress:port");
@@ -54,6 +54,7 @@ namespace CoreLogger {
 
         static void LogWriterThread() {
             var isHas = false;
+            var putWhite = false;
 
             while (true) {
                 lock (EventPull) {
@@ -63,13 +64,19 @@ namespace CoreLogger {
                         var evt = EventPull.Dequeue();
 
                         WriteLog(evt.ToString());
+
+                        if (!putWhite) {
+                            putWhite = true;
+                            Console.WriteLine("");
+                        }
                         Console.WriteLine(evt.Id);
+                        
                     }
                 }
 
                 if (!isHas) {
                     Thread.Sleep(Refrashtimeout);
-                    Console.WriteLine("");
+                    putWhite = false;
                 }
             }
             
@@ -89,6 +96,11 @@ namespace CoreLogger {
                 Directory.CreateDirectory("log");
                 var filename = GeneratefileName();
 
+                if (FileStreamWriter != null) {
+                    FileStreamWriter.Close();
+                    FileStreamWriter.Dispose();
+                }
+
                 FileStreamWriter = new StreamWriter(filename, true);
                 FileStreamWriter.AutoFlush = true;
             }
@@ -97,8 +109,8 @@ namespace CoreLogger {
         static void WriteLog(string message) {
             lock (FileName) {
                 if (DayChanged() || FileStreamWriter == null) {
-                    FileOpen();
                     Today = DateTime.Today;
+                    FileOpen();
                 }
             }
 
