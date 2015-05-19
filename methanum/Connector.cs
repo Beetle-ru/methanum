@@ -172,6 +172,10 @@ namespace methanum {
             _handlers[destination] = handler;
         }
 
+        public void DeleteHandler(string destination) {
+            if(_handlers.ContainsKey(destination)) _handlers.Remove(destination);
+        }
+
         public void Receive(Event evt) {
             if (_fired.Contains(evt.Id)) { // echo bloking
                 _fired.Remove(evt.Id);
