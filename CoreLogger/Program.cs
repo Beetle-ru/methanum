@@ -14,10 +14,10 @@ namespace CoreLogger {
         public static string FileName;
         public static StreamWriter FileStreamWriter;
         public static object SreamLocker;
-        public const int Refrashtimeout = 5000; // ms
-
+        public const int Refrashtimeout = 1000; // ms
+        private static object consoleLocker = new object();
         static void Main(string[] args) {
-            args = new[] {"localhost:2255"};
+            //args = new[] {"localhost:2255"};
             if ((!args.Any())) {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("ClentExample.exe coreAddress:port");
@@ -47,7 +47,11 @@ namespace CoreLogger {
             lock (EventPull) {
                 if (evt.Destination != "keepAlive") {
                     EventPull.Enqueue(evt);
-                    Console.Write(".");
+                    lock (consoleLocker) {
+                        Console.Write(".");
+                    }
+                    
+                    //Console.Beep(200, 21);
                 }
             }
         }
@@ -56,6 +60,7 @@ namespace CoreLogger {
             var isHas = false;
             var putWhite = false;
 
+            var i = 0;
             while (true) {
                 lock (EventPull) {
                     isHas = EventPull.Any();
@@ -70,11 +75,22 @@ namespace CoreLogger {
                             Console.WriteLine("");
                         }
                         Console.WriteLine(evt.Id);
-                        
+                        i++;
+
                     }
                 }
 
                 if (!isHas) {
+                    lock (consoleLocker)  {
+                        try {
+                            //Console.Beep(i * 20, 100); // 37 и 32767
+                        }
+                        catch (System.Exception) { }
+                            
+                        
+                    }
+                    
+                    i = 0;
                     Thread.Sleep(Refrashtimeout);
                     putWhite = false;
                 }

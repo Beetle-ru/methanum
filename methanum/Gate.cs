@@ -46,7 +46,8 @@ namespace methanum {
                     var channel = operationContext.GetCallbackChannel<IListener>();
 
                     try {
-                        channel.Receive(evt);
+                        ((DelegateReceive) (channel.Receive)).BeginInvoke(evt, null, null);
+                        //channel.Receive(evt); // old
                     }
                     catch (Exception e) {
                         Console.WriteLine(e.Message);
