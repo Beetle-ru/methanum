@@ -13,6 +13,9 @@ namespace methanum {
         void Subscribe();
 
         [OperationContract]
+        void Kill();
+
+        [OperationContract]
         void Fire(Event evt);
     }
 }

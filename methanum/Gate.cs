@@ -9,7 +9,7 @@ using methanum;
 
 namespace methanum {
     public class Gate : IGate {
-        static private List<OperationContext> _subscribers;
+        private static List<OperationContext> _subscribers;
 
         public Gate() {
             if (_subscribers == null)
@@ -19,16 +19,24 @@ namespace methanum {
         public void Subscribe() {
             var oc = OperationContext.Current;
 
-            if (_subscribers.Contains(oc)) {
-                _subscribers.Remove(oc);
-            }
-
+            _subscribers.RemoveAll(c => c.SessionId == oc.SessionId);
             _subscribers.Add(oc);
+
+            Console.WriteLine("(subscribe \"{0}\")", oc.SessionId);
+        }
+
+        public void Kill() {
+            var oc = OperationContext.Current;
+            _subscribers.RemoveAll(c => c.SessionId == oc.SessionId);
+
+            Console.WriteLine("(kill \"{0}\")", oc.SessionId);
         }
 
         public void Fire(Event evt) {
             var currentOperationContext = OperationContext.Current;
-            var remoteEndpointMessageProperty = currentOperationContext.IncomingMessageProperties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty;
+            var remoteEndpointMessageProperty =
+                currentOperationContext.IncomingMessageProperties[RemoteEndpointMessageProperty.Name] as
+                    RemoteEndpointMessageProperty;
             var ip = "";
             var port = 0;
 
@@ -37,22 +45,26 @@ namespace methanum {
                 port = remoteEndpointMessageProperty.Port;
             }
 
-            Console.WriteLine("Fire [{0}] from {1}:{2}", evt.Id, ip, port);
+            Console.WriteLine("(Fire (event \"{0}\") (from \"{1}:{2}\") (subscribers {3}))", evt.Id, ip, port, _subscribers.Count);
 
             for (var i = _subscribers.Count - 1; i >= 0; i--) {
-                var operationContext = _subscribers[i];
+                var oc = _subscribers[i];
 
-                if (operationContext.Channel.State == CommunicationState.Opened) {
-                    var channel = operationContext.GetCallbackChannel<IListener>();
+                if (oc.Channel.State == CommunicationState.Opened) {
+                    var channel = oc.GetCallbackChannel<IListener>();
+
 
                     try {
                         ((DelegateReceive) (channel.Receive)).BeginInvoke(evt, null, null);
-                        //channel.Receive(evt); // old
                     }
                     catch (Exception e) {
                         Console.WriteLine(e.Message);
                     }
-                } else _subscribers.RemoveAt(i);
+                }
+                else {
+                    _subscribers.RemoveAt(i);
+                    Console.WriteLine("(dead \"{0}\")", oc.SessionId);
+                }
             }
         }
     }

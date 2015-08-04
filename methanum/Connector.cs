@@ -28,6 +28,8 @@ namespace methanum {
 
         private bool _isSubscribed;
 
+        private object _channelSync = new object();
+
         /// <summary>
         /// If true then a messages don't lose after disconnection. A messages will be delivered after connect
         /// </summary>
@@ -89,6 +91,18 @@ namespace methanum {
             }
         }
 
+        private void ReConect() {
+            lock (_channelSync) {
+                try {
+                    _channel.Kill();
+                }
+                catch (Exception e) {
+                    Console.WriteLine("(ReConect-exception  \"{0}\"", e.Message);
+                }
+                Conect();
+            }
+        }
+
         public void Fire(Event evt) {
             if (_handlers.ContainsKey(evt.Destination)) { // Send a local message without an external fiering
                 _handlers[evt.Destination].BeginInvoke(evt, null, null);
@@ -147,6 +161,7 @@ namespace methanum {
                     catch (Exception) {
                         if (_isSubscribed)
                             _isSubscribed = false;
+                        ReConect();
                     }
                 } else Thread.Sleep(10);
             }
@@ -159,9 +174,9 @@ namespace methanum {
                 try {
                     _channel.Fire(evt);
                 } catch (Exception e) {
-                    Console.WriteLine(e.Message); // TODO make logger
+                    Console.WriteLine("(KeepAliveProc-exception  \"{0}\"", e.Message);
 
-                    Conect();
+                    ReConect();
                 }
 
                 Thread.Sleep(1000);
