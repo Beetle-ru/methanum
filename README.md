@@ -14,7 +14,7 @@ evt.SetData("name", userName);
 evt.SetData("text", msg);
 maingate.Fire(evt);
 ```
-If you want receive and handle a message you should set a message handler:
+If you want receive and handle messages you should set message handlers:
 ```C#
 maingate.SetHandler("message", MsgHandler);
 ```
