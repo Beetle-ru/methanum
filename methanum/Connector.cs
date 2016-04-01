@@ -104,10 +104,10 @@ namespace methanum {
         }
 
         public void Fire(Event evt) {
-            if (_handlers.ContainsKey(evt.Destination)) { // Send a local message without an external fiering
-                _handlers[evt.Destination].BeginInvoke(evt, null, null);
-                return;
-            }
+            //if (_handlers.ContainsKey(evt.Destination)) { // Send a local message without external fiering
+            //    _handlers[evt.Destination].BeginInvoke(evt, null, null);
+            //    return;
+            //}
 
             lock (_eventQueue) {
                 _eventQueue.Add(evt);
