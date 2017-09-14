@@ -8,7 +8,8 @@ using methanum;
 namespace ClentExamle {
     class Program {
         static void Main(string[] args) {
-            //args = new[] {"localhost:2255"};
+            //args = new[] {"localhost:4444"};
+            //args = new[] {"vm-sd3-test01:4441"};
             if ((!args.Any())) {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("ClentExample.exe coreAddress:port");

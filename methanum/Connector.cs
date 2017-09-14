@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Security;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
@@ -51,6 +52,10 @@ namespace methanum {
             _fired = new List<Guid>();
 
             _binding = new NetTcpBinding();
+            _binding.Security.Mode = SecurityMode.None;
+            _binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.None;
+            _binding.Security.Transport.ProtectionLevel = ProtectionLevel.None;
+            _binding.Security.Message.ClientCredentialType = MessageCredentialType.None;
 
             _endpointToAddress = new EndpointAddress(string.Format("net.tcp://{0}", ipAddress));
 
