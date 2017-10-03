@@ -63,20 +63,27 @@ namespace methanum {
 
             IsSaveMode = false;
 
-            Conect();
+            //InnerConect();
 
             _eventQueue = new List<Event>();
 
             _fireThread = new Thread(FireProc);
             _fireThread.IsBackground = true;
-            _fireThread.Start();
+            //_fireThread.Start();
 
             _keepAliveThread = new Thread(KeepAliveProc);
             _keepAliveThread.IsBackground = true;
+            //_keepAliveThread.Start();
+        }
+
+        public void Connect()
+        {
+            InnerConect();
+            _fireThread.Start();
             _keepAliveThread.Start();
         }
 
-        private void Conect() {
+        private void InnerConect() {
             _isSubscribed = false;
 
             while (!_isSubscribed) {
@@ -89,9 +96,9 @@ namespace methanum {
                     _isSubscribed = true;
                 }
                 catch (Exception e) {
-                    if (!(e is EndpointNotFoundException)) throw e;
-
-                    Thread.Sleep(1000);
+                    //if (!(e is EndpointNotFoundException)) throw e;
+                    throw e;
+                    //Thread.Sleep(1000);
                 }
             }
         }
@@ -104,7 +111,8 @@ namespace methanum {
                 catch (Exception e) {
                     Console.WriteLine("(ReConect-exception  \"{0}\"", e.Message);
                 }
-                Conect();
+                //Conect();
+                InnerConect();
             }
         }
 
